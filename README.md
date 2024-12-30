@@ -3,9 +3,10 @@
 ## Setup project
 
 - Install NodeJS `v22.12.0`
-  ```
-  You can either install it directly or install nvm and run nvm use.
-  ```
+
+  - Either by installing it directly on your machine
+  - Or by using `nvm` and run `nvm use` at this directory.
+
 - Clone this repository on your machine
 - Install packages via `npm ci`
 
