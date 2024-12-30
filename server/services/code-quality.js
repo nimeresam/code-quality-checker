@@ -14,7 +14,7 @@ async function checkCodeQuality(codeSnippet) {
     },
     {
       role: "user",
-      content: `Here's the code:\n\n${codeSnippet}`,
+      content: `Here's the code, I want the result as json:\n\n${codeSnippet}`,
     },
   ];
 
@@ -22,7 +22,7 @@ async function checkCodeQuality(codeSnippet) {
     const response = openaiClient.ask(messages);
     return response.data.choices[0].message.content;
   } catch (error) {
-    throw error.response?.data || error.message;
+    throw error;
   }
 }
 

@@ -10,9 +10,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/build")));
 
 // API route example
-app.get("/api", (req, res) => {
-  res.json({ message: "Hello from the backend!" });
-});
+app.use("/api", require("./routes/code.route"));
 
 // Serve React app for other routes
 app.get("*", (req, res) => {
