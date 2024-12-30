@@ -1,29 +1,16 @@
 const openaiClient = require("../clients/openai");
 
+// Load API Key from .env file
+const apiKey = process.env.OPENAI_API_KEY;
+
+// Function to check code quality
 /**
  * Check code quality via
- * @param {string} codeSnippet
+ * @param {string} code
  * @returns
  */
-async function checkCodeQuality(codeSnippet) {
-  const messages = [
-    {
-      role: "system",
-      content:
-        "You are an expert code reviewer. Analyze the following code for quality, maintainability, and suggest improvements.",
-    },
-    {
-      role: "user",
-      content: `Here's the code, I want the result as json:\n\n${codeSnippet}`,
-    },
-  ];
-
-  try {
-    const response = openaiClient.ask(messages);
-    return response.data.choices[0].message.content;
-  } catch (error) {
-    throw error;
-  }
+async function checkCodeQuality(code) {
+  return openaiClient.ask(code);
 }
 
 module.exports = {

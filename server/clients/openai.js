@@ -1,17 +1,44 @@
-const { OpenAI } = require("openai");
+function getHeaders() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${apiKey}`,
+  };
+}
 
-const client = new OpenAI(
-  "org-vORayujoPXsiFFQVQFUhKaLj",
-  "proj_qCJJ6tEUnom83WUJFzJ2PiPO"
-);
+function getBody(code) {
+  console.log("code", code);
+  const model = process.env.MODEL;
+  const json = {
+    model,
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are an expert code reviewer. Analyze the following code for quality, maintainability, and suggest improvements.",
+      },
+      {
+        role: "user",
+        content: `Here's the code:\n\n${code}`,
+      },
+    ],
+  };
+  return JSON.stringify(json);
+}
 
-async function ask(messages) {
+async function ask(code) {
   try {
-    return await client.chat.completions.create({
-      messages,
-      model: process.env.MODEL,
+    const endpoint = process.env.OPENAI_ENDPOINT;
+    const promise = await fetch(endpoint, {
+      method: "POST",
+      headers: getHeaders(),
+      body: getBody(code),
     });
+    const response = await promise.json();
+    if (response.error) throw response.error;
+    return response.choices[0].message.content;
   } catch (error) {
+    console.log("error", error);
     throw error;
   }
 }
