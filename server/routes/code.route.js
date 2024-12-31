@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const { upload } = require("../services/files-upload");
-const { checkCodeQuality } = require("../services/code-quality");
+const {
+  checkQualityOfFile,
+  checkQualityOfCode,
+} = require("../services/code-quality");
 
 router.post("/code", async (req, res) => {
   const { code } = req.body;
@@ -14,18 +17,22 @@ router.post("/code", async (req, res) => {
   }
 
   try {
-    const response = await checkCodeQuality(code);
-    res.json(response);
+    const response = await checkQualityOfCode(code);
+    res.send(response);
   } catch (err) {
-    res.json(err);
+    res.send(err);
   }
 });
 
-app.post("/upload", upload.single("file"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send("No file uploaded");
+router.post("/upload", upload.single("file"), async (req, res) => {
+  if (!req.file) return res.status(400).send("No file uploaded");
+
+  try {
+    const response = await checkQualityOfFile(req.file);
+    res.send(response);
+  } catch (err) {
+    res.status(err.code).send(err);
   }
-  res.send({ message: "File uploaded successfully!", file: req.file });
 });
 
 module.exports = router;
