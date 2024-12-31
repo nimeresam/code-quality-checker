@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
+
+const { upload } = require("../services/files-upload");
 const { checkCodeQuality } = require("../services/code-quality");
 
-// Example POST endpoint
 router.post("/code", async (req, res) => {
   const { code } = req.body;
 
@@ -18,6 +19,13 @@ router.post("/code", async (req, res) => {
   } catch (err) {
     res.json(err);
   }
+});
+
+app.post("/upload", upload.single("file"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send("No file uploaded");
+  }
+  res.send({ message: "File uploaded successfully!", file: req.file });
 });
 
 module.exports = router;

@@ -1,19 +1,22 @@
 const express = require("express");
 const path = require("path");
 require("dotenv").config();
+
 const app = express();
 
-// Middleware
+// Middlewares
 app.use(express.json());
-
-// Serve static files from React
 app.use(express.static(path.join(__dirname, "../client/build")));
 
 // API route example
-app.use("/api", require("./routes/code.route"));
+app.use(
+  "/api",
+  require("./routes/code.route"),
+  require("./routes/health-check.route")
+);
 
 // Serve React app for other routes
-app.get("*", (req, res) => {
+app.get("*", (_, res) => {
   res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });
 
