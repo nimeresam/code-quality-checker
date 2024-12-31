@@ -6,7 +6,7 @@ const openaiClient = require("../clients/openai");
 
 /**
  * @async
- *
+ * Check code file quality
  * @param {string} fileName
  * @returns {Promise<string>}
  */
@@ -23,9 +23,9 @@ async function checkQualityOfFile(fileName) {
 }
 
 /**
- * Check code quality via
+ * Check code text quality
  * @param {string} code
- * @returns
+ * @returns {{ [key: string]: string }}
  */
 async function checkQualityOfCode(code) {
   return openaiClient.ask(code);
