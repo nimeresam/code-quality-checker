@@ -28,7 +28,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).send("No file uploaded");
 
   try {
-    const response = await checkQualityOfFile(req.file);
+    const response = await checkQualityOfFile(req.file.filename);
     res.send(response);
   } catch (err) {
     res.status(err.code).send(err);

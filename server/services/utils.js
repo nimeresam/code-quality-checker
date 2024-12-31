@@ -1,11 +1,5 @@
-/**
- * Get a unique name of file by appending the current date
- * @param {string} name
- * @returns {string}
- */
-function getUniqueName(name) {
-  return `${Date.now()}-${name}`;
-}
+const path = require("path");
+const { existsSync, mkdirSync } = require("fs");
 
 /**
  * Convert MB to Bytes
@@ -16,7 +10,13 @@ function mbToBytes(mb) {
   return mb * 1024 * 1024;
 }
 
+function getFullDirPath(dirname) {
+  const fullPath = path.join(__dirname, "..", dirname);
+  if (!existsSync(fullPath)) mkdirSync(fullPath);
+  return fullPath;
+}
+
 module.exports = {
-  getUniqueName,
   mbToBytes,
+  getFullDirPath,
 };

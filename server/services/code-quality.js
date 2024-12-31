@@ -3,6 +3,7 @@ const path = require("path");
 
 // Local Imports
 const openaiClient = require("../clients/openai");
+const { getFullDirPath } = require("./utils");
 
 /**
  * @async
@@ -11,8 +12,9 @@ const openaiClient = require("../clients/openai");
  * @returns {Promise<string>}
  */
 async function checkQualityOfFile(fileName) {
-  const filePath = path.join(process.env.UPLOADS_DIR, fileName);
-  if (!existsSync(fileName))
+  const dirPath = getFullDirPath(process.env.UPLOADS_DIR);
+  const filePath = path.join(dirPath, fileName);
+  if (!existsSync(filePath))
     throw {
       code: 406,
       message: `File ${fileName} isn't exist`,

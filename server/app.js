@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const multer = require("multer");
 require("dotenv").config();
 
 const app = express();
@@ -7,6 +8,14 @@ const app = express();
 // Middlewares
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/build")));
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).send({ error: err.message });
+  } else if (err) {
+    return res.status(400).send({ error: err.message });
+  }
+  next();
+});
 
 // API route example
 app.use(
