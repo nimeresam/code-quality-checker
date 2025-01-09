@@ -46,23 +46,25 @@ const CodeQualityChecker = () => {
     try {
       setLoading(true);
       setError(null);
-      let payload;
+      const payload = file
+        ? (() => {
+            // If a file is uploaded, send it as multipart/form-data
+            const formData = new FormData();
+            formData.append("file", file);
+            return formData;
+          })()
+        : { code };
+      const endpointPath = file ? "upload" : "code";
 
-      if (file) {
-        // If a file is uploaded, send it as multipart/form-data
-        const formData = new FormData();
-        formData.append("file", file);
-        payload = formData;
-      } else {
-        // If code is entered, send it as JSON
-        payload = { code };
-      }
-
-      const res = await axios.post("http://localhost:5500/api/code", payload, {
-        headers: file
-          ? { "Content-Type": "multipart/form-data" }
-          : { "Content-Type": "application/json" },
-      });
+      const res = await axios.post(
+        `http://localhost:5500/api/${endpointPath}`,
+        payload,
+        {
+          headers: file
+            ? { "Content-Type": "multipart/form-data" }
+            : { "Content-Type": "application/json" },
+        }
+      );
 
       // Static response data
       let data = {
