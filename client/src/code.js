@@ -48,11 +48,11 @@ const CodeQualityChecker = () => {
       const payload =
         files.length > 0
           ? (() => {
-            // If files are uploaded, send them as multipart/form-data
-            const formData = new FormData();
-            files.forEach((file) => formData.append("files", file));
-            return formData;
-          })()
+              // If files are uploaded, send them as multipart/form-data
+              const formData = new FormData();
+              files.forEach((file) => formData.append("files", file));
+              return formData;
+            })()
           : { code };
 
       const endpointPath = files.length > 0 ? "upload" : "code";
@@ -61,18 +61,19 @@ const CodeQualityChecker = () => {
         `http://localhost:5500/api/${endpointPath}`,
         payload,
         {
-          headers: files.length > 0
-            ? { "Content-Type": "multipart/form-data" }
-            : { "Content-Type": "application/json" },
+          headers:
+            files.length > 0
+              ? { "Content-Type": "multipart/form-data" }
+              : { "Content-Type": "application/json" },
         }
       );
       if (res.data.code === null) {
         setError(res.data.message);
       }
       console.log(res);
-      setResponse(response.data); // Store API response
+      setResponse(res.data); // Store API response
     } catch (err) {
-      console.log(err);
+      console.error(err);
       // Extract detailed error information
       // const errorResponse = err.response?.data || {}; // API error object
       // const errorMessage = errorResponse.message || err.message || "An unknown error occurred.";
@@ -86,8 +87,7 @@ const CodeQualityChecker = () => {
 
       // setError(errorDetails);
       setResponse(null);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -200,7 +200,9 @@ const CodeQualityChecker = () => {
               multiple
             />
 
-            <ul style={{ marginTop: "10px", listStyleType: "none", padding: 0 }}>
+            <ul
+              style={{ marginTop: "10px", listStyleType: "none", padding: 0 }}
+            >
               {files.map((file, index) => (
                 <li
                   key={index}
@@ -269,13 +271,19 @@ const CodeQualityChecker = () => {
           </h2>
           <div style={{ fontSize: "1.1rem", lineHeight: "1.6", color: "#555" }}>
             {Object.keys(response).map((key) => {
-              if (typeof response[key] === "string" || typeof response[key] === "number") {
+              if (
+                typeof response[key] === "string" ||
+                typeof response[key] === "number"
+              ) {
                 // Render string or number values directly
                 return (
                   <div style={{ marginBottom: "15px" }} key={key}>
                     <h3
                       style={{
-                        color: key === "overallQualityPercentage" ? "#4A90E2" : "#4A90E2",
+                        color:
+                          key === "overallQualityPercentage"
+                            ? "#4A90E2"
+                            : "#4A90E2",
                         display: "flex",
                         alignItems: "center",
                       }}
@@ -290,7 +298,10 @@ const CodeQualityChecker = () => {
                     <p>{response[key]}</p>
                   </div>
                 );
-              } else if (typeof response[key] === "object" && response[key] !== null) {
+              } else if (
+                typeof response[key] === "object" &&
+                response[key] !== null
+              ) {
                 // Render nested objects as lists
                 return (
                   <div style={{ marginBottom: "15px" }} key={key}>
@@ -301,7 +312,9 @@ const CodeQualityChecker = () => {
                         alignItems: "center",
                       }}
                     >
-                      <span style={{ marginRight: "10px", fontSize: "1.2rem" }}>⚠</span>
+                      <span style={{ marginRight: "10px", fontSize: "1.2rem" }}>
+                        ⚠
+                      </span>
                       {key
                         .replace(/([A-Z])/g, " $1")
                         .replace(/^./, (str) => str.toUpperCase())}
@@ -346,8 +359,6 @@ const CodeQualityChecker = () => {
           <strong>Error:</strong> {error}
         </div>
       )}
-
-
     </div>
   );
 };
