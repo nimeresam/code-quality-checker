@@ -66,14 +66,28 @@ const CodeQualityChecker = () => {
             : { "Content-Type": "application/json" },
         }
       );
-
+      if (res.data.code === null) {
+        setError(res.data.message);
+      }
+      console.log(res);
       setResponse(response.data); // Store API response
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || err.message || "An unknown error occurred.";
-      setError(errorMessage);
+      console.log(err);
+      // Extract detailed error information
+      // const errorResponse = err.response?.data || {}; // API error object
+      // const errorMessage = errorResponse.message || err.message || "An unknown error occurred.";
+
+      // const errorDetails = {
+      //   message: errorMessage,
+      //   code: errorResponse.code || "N/A",
+      //   param: errorResponse.param || "N/A",
+      //   type: errorResponse.type || "N/A",
+      // };
+
+      // setError(errorDetails);
       setResponse(null);
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -228,18 +242,6 @@ const CodeQualityChecker = () => {
         </div>
       </form>
 
-      {error && (
-        <div
-          style={{
-            color: "red",
-            marginTop: "20px",
-            textAlign: "center",
-          }}
-        >
-          {error}
-        </div>
-      )}
-
       {loading && <LoadingSpinner />}
 
       {response && (
@@ -326,24 +328,24 @@ const CodeQualityChecker = () => {
         </div>
       )}
 
-{error && (
-  <div
-    style={{
-      backgroundColor: "#f8d7da",
-      color: "#721c24",
-      border: "1px solid #f5c6cb",
-      borderRadius: "5px",
-      padding: "15px",
-      marginTop: "20px",
-      textAlign: "center",
-      maxWidth: "800px",
-      marginLeft: "auto",
-      marginRight: "auto",
-    }}
-  >
-    <strong>Error:</strong> {error}
-  </div>
-)}
+      {error && (
+        <div
+          style={{
+            backgroundColor: "#f8d7da",
+            color: "#721c24",
+            border: "1px solid #f5c6cb",
+            borderRadius: "5px",
+            padding: "15px",
+            marginTop: "20px",
+            textAlign: "center",
+            maxWidth: "800px",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        >
+          <strong>Error:</strong> {error}
+        </div>
+      )}
 
 
     </div>
