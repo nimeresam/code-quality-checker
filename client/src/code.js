@@ -18,26 +18,26 @@ const LoadingSpinner = () => (
 
 const CodeQualityChecker = () => {
   const [code, setCode] = useState(""); // Store the manually entered code
-  const [files, setFiles] = useState([]); // Store the uploaded files
+  const [file, setFile] = useState(null); // Store the uploaded file
   const [response, setResponse] = useState(null); // Store API response
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null); // Store error state
 
   const handleCodeChange = (e) => {
     setCode(e.target.value); // Update code from textarea
-    setFiles([]); // Reset files if textarea is used
+    setFile(null); // Reset files if textarea is used
   };
 
   const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files); // Convert FileList to Array
-    setFiles(selectedFiles); // Update files state
+    console.log(e.target.files[0]);
+    setFile(e.target.files[0]); // Update file from file input
     setCode(""); // Reset code if file is used
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
 
-    if (!code && files.length === 0) {
+    if (!code && !file) {
       alert("Please enter code or upload a file.");
       return;
     }
@@ -45,26 +45,23 @@ const CodeQualityChecker = () => {
     try {
       setLoading(true);
       setError(null);
-      const payload =
-        files.length > 0
-          ? (() => {
-              // If files are uploaded, send them as multipart/form-data
-              const formData = new FormData();
-              files.forEach((file) => formData.append("files", file));
-              return formData;
-            })()
-          : { code };
-
-      const endpointPath = files.length > 0 ? "upload" : "code";
+      const payload = file
+        ? (() => {
+            // If a file is uploaded, send it as multipart/form-data
+            const formData = new FormData();
+            formData.append("file", file);
+            return formData;
+          })()
+        : { code };
+      const endpointPath = file ? "upload" : "code";
 
       const res = await axios.post(
         `http://localhost:5500/api/${endpointPath}`,
         payload,
         {
-          headers:
-            files.length > 0
-              ? { "Content-Type": "multipart/form-data" }
-              : { "Content-Type": "application/json" },
+          headers: file
+            ? { "Content-Type": "multipart/form-data" }
+            : { "Content-Type": "application/json" },
         }
       );
       if (res.data.code === null) {
@@ -189,7 +186,7 @@ const CodeQualityChecker = () => {
                 marginBottom: "10px",
               }}
             >
-              Choose File(s)
+              Choose File
             </label>
             <input
               type="file"
@@ -203,23 +200,20 @@ const CodeQualityChecker = () => {
             <ul
               style={{ marginTop: "10px", listStyleType: "none", padding: 0 }}
             >
-              {files.map((file, index) => (
-                <li
-                  key={index}
-                  style={{
-                    backgroundColor: "#f3f3f3",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    marginBottom: "5px",
-                    textAlign: "left",
-                    width: "100%",
-                    maxWidth: "300px",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {file.name}
-                </li>
-              ))}
+              <li
+                style={{
+                  backgroundColor: "#f3f3f3",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  marginBottom: "5px",
+                  textAlign: "left",
+                  width: "100%",
+                  maxWidth: "300px",
+                  wordBreak: "break-word",
+                }}
+              >
+                {file?.name}
+              </li>
             </ul>
 
             <button
