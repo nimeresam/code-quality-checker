@@ -19,13 +19,13 @@ function getBody(code) {
       {
         role: "system",
         content: `You are an expert code reviewer. 
-          Analyze the following code for functionality, readability, bestPractices, percentage of overall quality, and suggest improvements.
+          Analyze the following code for functionality, readability, bestPractices, code smells, percentage of overall quality, and suggest improvements.
           Give me the response as one level JSON only without mentioning the code`,
       },
       {
         role: "system",
         content: `I want the response like:
-        { functionality: string, readability: string, bestPractices: string, overallQualityPercentage: number, improvements: { [key: string]: string } }
+        { functionality: string, readability: string, bestPractices: string, overallQualityPercentage: number, improvements: { [key: string]: string } }, codeSmells: { [key: string]: string } }
         `,
       },
       {
@@ -46,6 +46,7 @@ function getBody(code) {
  *  bestPractices: string,
  *  overallQualityPercentage: number,
  *  improvements: { [key: string]: string }
+ *  codeSmells: { [key: string]: string }
  * }
  */
 async function ask(code) {
