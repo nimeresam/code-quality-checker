@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import data from "./response";
 
 const LoadingSpinner = () => (
   <div style={{ textAlign: "center", padding: "20px" }}>
@@ -19,26 +18,26 @@ const LoadingSpinner = () => (
 
 const CodeQualityChecker = () => {
   const [code, setCode] = useState(""); // Store the manually entered code
-  const [file, setFile] = useState(null); // Store the uploaded file
+  const [files, setFiles] = useState([]); // Store the uploaded files
   const [response, setResponse] = useState(null); // Store API response
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null); // Store error state
 
   const handleCodeChange = (e) => {
     setCode(e.target.value); // Update code from textarea
-    setFile(null); // Reset file if textarea is used
+    setFiles([]); // Reset files if textarea is used
   };
 
   const handleFileChange = (e) => {
-    console.log(e.target.files[0]);
-    setFile(e.target.files[0]); // Update file from file input
-    setCode(""); // Reset textarea if file is used
+    const selectedFiles = Array.from(e.target.files); // Convert FileList to Array
+    setFiles(selectedFiles); // Update files state
+    setCode(""); // Reset code if file is used
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
 
-    if (!code && !file) {
+    if (!code && files.length === 0) {
       alert("Please enter code or upload a file.");
       return;
     }
@@ -46,47 +45,33 @@ const CodeQualityChecker = () => {
     try {
       setLoading(true);
       setError(null);
-      const payload = file
-        ? (() => {
-            // If a file is uploaded, send it as multipart/form-data
+      const payload =
+        files.length > 0
+          ? (() => {
+            // If files are uploaded, send them as multipart/form-data
             const formData = new FormData();
-            formData.append("file", file);
+            files.forEach((file) => formData.append("files", file));
             return formData;
           })()
-        : { code };
-      const endpointPath = file ? "upload" : "code";
+          : { code };
+
+      const endpointPath = files.length > 0 ? "upload" : "code";
 
       const res = await axios.post(
         `http://localhost:5500/api/${endpointPath}`,
         payload,
         {
-          headers: file
+          headers: files.length > 0
             ? { "Content-Type": "multipart/form-data" }
             : { "Content-Type": "application/json" },
         }
       );
 
-      // Static response data
-      let data = {
-        functionality:
-          "The code correctly imports and utilizes the necessary components from React Native and Expo. The App component renders the Contacts component, but there's no indication of functionality such as state management or props being utilized.",
-        readability:
-          "The code is mostly readable, structured well, and uses appropriate naming conventions. However, a brief comment explaining the purpose of the App component could improve clarity.",
-        bestPractices:
-          "Best practices are mostly followed, including the use of StyleSheet for styling. However, defining the styles in relation to the layout or elements they are applied to would enhance clarity.",
-        overallQualityPercentage: 75,
-        improvements: {
-          comments:
-            "Add comments to describe the purpose of each component and style.",
-          structure:
-            "Consider breaking down the code further if additional features are planned, to maintain modularity.",
-          errorHandling:
-            "Implement error handling for potential issues when loading contacts within the Contacts component.",
-        },
-      };
-      setResponse(res.data); // Store API response
+      setResponse(response.data); // Store API response
     } catch (err) {
-      setError("Error checking code quality. Please try again.");
+      const errorMessage =
+        err.response?.data?.message || err.message || "An unknown error occurred.";
+      setError(errorMessage);
       setResponse(null);
     } finally {
       setLoading(false);
@@ -170,7 +155,8 @@ const CodeQualityChecker = () => {
           <div
             style={{
               display: "flex",
-              justifyContent: "center",
+              flexDirection: "column",
+              alignItems: "center",
               marginBottom: "20px",
             }}
           >
@@ -186,10 +172,10 @@ const CodeQualityChecker = () => {
                 maxWidth: "200px",
                 textAlign: "center",
                 fontWeight: "bold",
-                marginRight: "10px",
+                marginBottom: "10px",
               }}
             >
-              Choose File
+              Choose File(s)
             </label>
             <input
               type="file"
@@ -197,7 +183,28 @@ const CodeQualityChecker = () => {
               onChange={handleFileChange}
               style={{ display: "none" }}
               id="fileInput"
+              multiple
             />
+
+            <ul style={{ marginTop: "10px", listStyleType: "none", padding: 0 }}>
+              {files.map((file, index) => (
+                <li
+                  key={index}
+                  style={{
+                    backgroundColor: "#f3f3f3",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    marginBottom: "5px",
+                    textAlign: "left",
+                    width: "100%",
+                    maxWidth: "300px",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {file.name}
+                </li>
+              ))}
+            </ul>
 
             <button
               type="submit"
@@ -259,90 +266,86 @@ const CodeQualityChecker = () => {
             Code Quality Feedback
           </h2>
           <div style={{ fontSize: "1.1rem", lineHeight: "1.6", color: "#555" }}>
-            <div style={{ marginBottom: "15px" }}>
-              <h3
-                style={{
-                  color: "#4A90E2",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <span style={{ marginRight: "10px", fontSize: "1.2rem" }}>
-                  ✔
-                </span>
-                Functionality
-              </h3>
-              <p>{response.functionality}</p>
-            </div>
-            <div style={{ marginBottom: "15px" }}>
-              <h3
-                style={{
-                  color: "#4A90E2",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <span style={{ marginRight: "10px", fontSize: "1.2rem" }}>
-                  ✔
-                </span>
-                Readability
-              </h3>
-              <p>{response.readability}</p>
-            </div>
-            <div style={{ marginBottom: "15px" }}>
-              <h3
-                style={{
-                  color: "#4A90E2",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <span style={{ marginRight: "10px", fontSize: "1.2rem" }}>
-                  ✔
-                </span>
-                Best Practices
-              </h3>
-              <p>{response.bestPractices}</p>
-            </div>
-            <div style={{ marginBottom: "15px" }}>
-              <h3
-                style={{
-                  color: "#E67E22",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <span style={{ marginRight: "10px", fontSize: "1.2rem" }}>
-                  ⚠
-                </span>
-                Improvements
-              </h3>
-              <ul>
-                <li>
-                  <strong>Comments:</strong> {response.improvements.comments}
-                </li>
-                <li>
-                  <strong>Structure:</strong> {response.improvements.structure}
-                </li>
-                <li>
-                  <strong>Error Handling:</strong>{" "}
-                  {response.improvements.errorHandling}
-                </li>
-              </ul>
-            </div>
-            <div
-              style={{
-                marginTop: "20px",
-                fontSize: "1.5rem",
-                color: "#4A90E2",
-                fontWeight: "bold",
-              }}
-            >
-              Overall Quality: {response.overallQualityPercentage}%
-            </div>
+            {Object.keys(response).map((key) => {
+              if (typeof response[key] === "string" || typeof response[key] === "number") {
+                // Render string or number values directly
+                return (
+                  <div style={{ marginBottom: "15px" }} key={key}>
+                    <h3
+                      style={{
+                        color: key === "overallQualityPercentage" ? "#4A90E2" : "#4A90E2",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span style={{ marginRight: "10px", fontSize: "1.2rem" }}>
+                        {key === "overallQualityPercentage" ? "⭐" : "✔"}
+                      </span>
+                      {key
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase())}
+                    </h3>
+                    <p>{response[key]}</p>
+                  </div>
+                );
+              } else if (typeof response[key] === "object" && response[key] !== null) {
+                // Render nested objects as lists
+                return (
+                  <div style={{ marginBottom: "15px" }} key={key}>
+                    <h3
+                      style={{
+                        color: "#E67E22",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span style={{ marginRight: "10px", fontSize: "1.2rem" }}>⚠</span>
+                      {key
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase())}
+                    </h3>
+                    <ul>
+                      {Object.keys(response[key]).map((subKey) => (
+                        <li key={subKey}>
+                          <strong>
+                            {subKey
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            :
+                          </strong>{" "}
+                          {response[key][subKey]}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              }
+              return null;
+            })}
           </div>
         </div>
       )}
+
+{error && (
+  <div
+    style={{
+      backgroundColor: "#f8d7da",
+      color: "#721c24",
+      border: "1px solid #f5c6cb",
+      borderRadius: "5px",
+      padding: "15px",
+      marginTop: "20px",
+      textAlign: "center",
+      maxWidth: "800px",
+      marginLeft: "auto",
+      marginRight: "auto",
+    }}
+  >
+    <strong>Error:</strong> {error}
+  </div>
+)}
+
+
     </div>
   );
 };
